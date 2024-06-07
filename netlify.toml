@@ -2,9 +2,8 @@
   publish = "public"
   functions = "functions"
 
-[[functions]]
-  name = "gpt"
-  timeout = 26  # Increase the timeout to 26 seconds
+[functions]
+  gpt = { timeout = 26 }  # Set timeout for the "gpt" function to 26 seconds
 
 [[redirects]]
   from = "/api/*"
