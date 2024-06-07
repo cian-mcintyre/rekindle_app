@@ -1,3 +1,5 @@
+// public/voiceChat.js
+
 document.getElementById('activateVoiceChat').addEventListener('click', function() {
     startVoiceChat();
 });
@@ -85,6 +87,7 @@ function getGPTResponse(text) {
         button.removeChild(loader);
         const icon = button.querySelector('.icon');
         icon.style.display = 'block';
+        displayGPTResponse("Sorry, the request took too long or there was an error. Please try again.");
     });
 }
 

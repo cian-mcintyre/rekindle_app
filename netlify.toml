@@ -2,6 +2,10 @@
   publish = "public"
   functions = "functions"
 
+[[functions]]
+  name = "gpt"
+  timeout = 26  # Increase the timeout to 26 seconds
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/:splat"
