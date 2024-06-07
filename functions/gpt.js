@@ -1,6 +1,6 @@
 // functions/gpt.js
 
-const fetch = require('node-fetch');
+const axios = require('axios');
 const dotenv = require('dotenv');
 
 // Load environment variables from .env file
@@ -27,38 +27,34 @@ exports.handler = async (event) => {
     }
 
     try {
-        const response = await fetch(apiEndpoint, {
-            method: 'POST',
+        const response = await axios.post(apiEndpoint, {
+            model: "gpt-4",
+            messages: [
+                { role: "system", content: "You are a helpful assistant." },
+                { role: "user", content: userMessage }
+            ]
+        }, {
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${apiKey}`
-            },
-            body: JSON.stringify({
-                model: "gpt-4",
-                messages: [
-                    { role: "system", content: "You are a helpful assistant." },
-                    { role: "user", content: userMessage }
-                ]
-            })
+            }
         });
 
-        if (!response.ok) {
-            const errorData = await response.json();
-            return {
-                statusCode: response.status,
-                body: JSON.stringify(errorData)
-            };
-        }
-
-        const responseData = await response.json();
         return {
             statusCode: 200,
-            body: JSON.stringify({ output: responseData.choices[0].message.content })
+            body: JSON.stringify({ output: response.data.choices[0].message.content })
         };
     } catch (error) {
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: error.message })
-        };
+        if (error.response) {
+            return {
+                statusCode: error.response.status,
+                body: JSON.stringify(error.response.data)
+            };
+        } else {
+            return {
+                statusCode: 500,
+                body: JSON.stringify({ error: error.message })
+            };
+        }
     }
 };
