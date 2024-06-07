@@ -1,0 +1,17 @@
+{
+    "name": "rekindle",
+    "version": "1.0.0",
+    "description": "A simple voice chat app using Chat GPT API",
+    "main": "index.js",
+    "scripts": {
+      "start": "node index.js"
+    },
+    "dependencies": {
+      "node-fetch": "^3.0.0",
+      "dotenv": "^10.0.0" 
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
+  }
+  
