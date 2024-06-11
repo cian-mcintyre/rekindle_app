@@ -5,6 +5,7 @@ body {
     align-items: center;
     min-height: 100vh; /* Changed to min-height for better scrolling on mobile */
     margin: 0;
+    padding: 20px 0; /* Add padding to ensure spacing at top and bottom */
     font-family: Arial, sans-serif;
     background: linear-gradient(to right, #e0c3fc, #8ec5fc);
     background-size: 400% 400%;
@@ -30,9 +31,9 @@ body {
     align-items: center;
     width: 100%;
     max-width: 600px;
-    margin: 0 20px;
+    margin: 20px 20px; /* Add margin to top and bottom for spacing */
     padding: 20px; /* Added padding for better spacing */
-    background: rgba(255, 255, 255, 0.8); /* Semi-transparent background for better readability */
+    background: rgba(255, 255, 255, 0.9); /* Semi-transparent background for better readability */
     border-radius: 15px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
