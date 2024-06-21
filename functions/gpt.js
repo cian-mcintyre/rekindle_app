@@ -33,8 +33,8 @@ exports.handler = async (event) => {
 
         if (!sessionId) {
             // Initialize a new session with your custom model
-            console.log('Starting a new session with model: g-FgKli30nK-rekindle');
-            sessionResponse = await axios.post(`${ASSISTANTS_API_URL}/g-FgKli30nK-rekindle/sessions`, {
+            console.log('Starting a new session with model: g-k997M6vy1-read-replayer');
+            sessionResponse = await axios.post(`${ASSISTANTS_API_URL}/g-k997M6vy1-read-replayer/sessions`, {
                 role: 'user',
                 messages: [{ role: 'user', content: userMessage }]
             }, {
@@ -46,7 +46,7 @@ exports.handler = async (event) => {
         } else {
             // Continue with an existing session
             console.log('Continuing session:', sessionId);
-            sessionResponse = await axios.post(`${ASSISTANTS_API_URL}/g-FgKli30nK-rekindle/sessions/${sessionId}/messages`, {
+            sessionResponse = await axios.post(`${ASSISTANTS_API_URL}/g-k997M6vy1-read-replayer/sessions/${sessionId}/messages`, {
                 role: 'user',
                 content: userMessage
             }, {
