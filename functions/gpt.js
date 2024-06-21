@@ -6,6 +6,9 @@ const dotenv = require('dotenv');
 // Load environment variables from .env file
 dotenv.config();
 
+const ASSISTANTS_API_URL = 'https://api.openai.com/v1/assistants';
+const API_KEY = process.env.OPENAI_API_KEY;
+
 exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') {
         return {
@@ -14,10 +17,9 @@ exports.handler = async (event) => {
         };
     }
 
-    const apiKey = process.env.OPENAI_API_KEY;
-    const apiEndpoint = 'https://api.openai.com/v1/chat/completions';
     const requestBody = JSON.parse(event.body);
     const userMessage = requestBody.input;
+    const sessionId = requestBody.sessionId || null; // Get sessionId from the request if provided
 
     if (!userMessage) {
         return {
@@ -27,34 +29,46 @@ exports.handler = async (event) => {
     }
 
     try {
-        const response = await axios.post(apiEndpoint, {
-            model: "gpt-4",
-            messages: [
-                { role: "system", content: "You are a helpful assistant." },
-                { role: "user", content: userMessage }
-            ]
-        }, {
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${apiKey}`
-            }
-        });
+        let sessionResponse;
+        if (!sessionId) {
+            // Initialize a new session if sessionId is not provided
+            sessionResponse = await axios.post(`${ASSISTANTS_API_URL}/sessions`, {
+                model: 'g-k997M6vy1-read-replayer', // Use your custom model's ID
+                role: 'user',
+                message: userMessage
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${API_KEY}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+        } else {
+            // Continue with an existing session
+            sessionResponse = await axios.post(`${ASSISTANTS_API_URL}/sessions/${sessionId}/messages`, {
+                role: 'user',
+                message: userMessage
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${API_KEY}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+        }
+
+        const responseData = sessionResponse.data;
+        const gptResponse = responseData.message.content;
 
         return {
             statusCode: 200,
-            body: JSON.stringify({ output: response.data.choices[0].message.content })
+            body: JSON.stringify({
+                output: gptResponse,
+                sessionId: responseData.session_id // Return sessionId for the ongoing conversation
+            })
         };
     } catch (error) {
-        if (error.response) {
-            return {
-                statusCode: error.response.status,
-                body: JSON.stringify(error.response.data)
-            };
-        } else {
-            return {
-                statusCode: 500,
-                body: JSON.stringify({ error: error.message })
-            };
-        }
+        return {
+            statusCode: 500,
+            body: JSON.stringify({ error: error.message })
+        };
     }
 };
