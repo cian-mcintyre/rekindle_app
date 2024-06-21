@@ -33,7 +33,7 @@ exports.handler = async (event) => {
         if (!sessionId) {
             // Initialize a new session if sessionId is not provided
             sessionResponse = await axios.post(`${ASSISTANTS_API_URL}/sessions`, {
-                model: 'g-k997M6vy1-read-replayer', // Use your custom model's ID
+                model: 'g-FgKli30nK-rekindle', // Use your custom model's ID
                 role: 'user',
                 message: userMessage
             }, {
