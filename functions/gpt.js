@@ -30,12 +30,13 @@ exports.handler = async (event) => {
 
     try {
         let sessionResponse;
+
         if (!sessionId) {
-            // Initialize a new session if sessionId is not provided
-            sessionResponse = await axios.post(`${ASSISTANTS_API_URL}/sessions`, {
-                model: 'g-FgKli30nK-rekindle', // Use your custom model's ID
+            // Initialize a new session with your custom model
+            console.log('Starting a new session with model: g-FgKli30nK-rekindle');
+            sessionResponse = await axios.post(`${ASSISTANTS_API_URL}/g-FgKli30nK-rekindle/sessions`, {
                 role: 'user',
-                message: userMessage
+                messages: [{ role: 'user', content: userMessage }]
             }, {
                 headers: {
                     'Authorization': `Bearer ${API_KEY}`,
@@ -44,9 +45,10 @@ exports.handler = async (event) => {
             });
         } else {
             // Continue with an existing session
-            sessionResponse = await axios.post(`${ASSISTANTS_API_URL}/sessions/${sessionId}/messages`, {
+            console.log('Continuing session:', sessionId);
+            sessionResponse = await axios.post(`${ASSISTANTS_API_URL}/g-FgKli30nK-rekindle/sessions/${sessionId}/messages`, {
                 role: 'user',
-                message: userMessage
+                content: userMessage
             }, {
                 headers: {
                     'Authorization': `Bearer ${API_KEY}`,
@@ -58,6 +60,9 @@ exports.handler = async (event) => {
         const responseData = sessionResponse.data;
         const gptResponse = responseData.message.content;
 
+        console.log('Session ID:', responseData.session_id);
+        console.log('Response:', gptResponse);
+
         return {
             statusCode: 200,
             body: JSON.stringify({
@@ -66,9 +71,10 @@ exports.handler = async (event) => {
             })
         };
     } catch (error) {
+        console.error('Error interacting with GPT API:', error.response ? error.response.data : error.message);
         return {
             statusCode: 500,
-            body: JSON.stringify({ error: error.message })
+            body: JSON.stringify({ error: error.response ? error.response.data : error.message })
         };
     }
 };
