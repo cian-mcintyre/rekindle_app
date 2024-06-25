@@ -1,6 +1,6 @@
 // public/voiceChat.js
 
-let sessionId = null; // Store sessionId for maintaining context
+let threadId = null; // Store threadId for maintaining context
 
 document.getElementById('activateVoiceChat').addEventListener('click', function() {
     startVoiceChat();
@@ -60,7 +60,7 @@ function getGPTResponse(text) {
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ input: text, sessionId: sessionId }) // Include the sessionId for context
+        body: JSON.stringify({ input: text, threadId: threadId }) // Include the threadId for context
     })
     .then(response => {
         if (!response.ok) {
@@ -74,12 +74,12 @@ function getGPTResponse(text) {
     .then(data => {
         console.log('GPT response:', data);
         const gptResponse = data.output;
-        sessionId = data.sessionId; // Update sessionId for continued conversation
+        threadId = data.threadId; // Update threadId for continued conversation
         displayGPTResponse(gptResponse);
         speakResponse(gptResponse);
         const button = document.getElementById('activateVoiceChat');
         const loader = button.querySelector('.thinking');
-        button.removeChild(loader);
+        if (loader) button.removeChild(loader);
         const icon = button.querySelector('.icon');
         icon.style.display = 'block';
     })

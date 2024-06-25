@@ -8,6 +8,7 @@ dotenv.config();
 
 const ASSISTANTS_API_URL = 'https://api.openai.com/v1/assistants';
 const API_KEY = process.env.OPENAI_API_KEY;
+const ASSISTANT_ID = 'asst_MzkZbILBkb0osJvbcnmuUtUF';
 
 exports.handler = async (event) => {
     if (event.httpMethod !== 'POST') {
@@ -19,7 +20,7 @@ exports.handler = async (event) => {
 
     const requestBody = JSON.parse(event.body);
     const userMessage = requestBody.input;
-    const sessionId = requestBody.sessionId || null; // Get sessionId from the request if provided
+    const threadId = requestBody.threadId || null; // Get threadId from the request if provided
 
     if (!userMessage) {
         return {
@@ -29,13 +30,12 @@ exports.handler = async (event) => {
     }
 
     try {
-        let sessionResponse;
+        let response;
 
-        if (!sessionId) {
-            // Initialize a new session with your custom model
-            console.log('Starting a new session with model: asst_MzkZbILBkb0osJvbcnmuUtUF');
-            sessionResponse = await axios.post(`${ASSISTANTS_API_URL}/asst_MzkZbILBkb0osJvbcnmuUtUF/sessions`, {
-                role: 'user',
+        if (!threadId) {
+            // Initialize a new thread if threadId is not provided
+            console.log('Starting a new thread with assistant:', ASSISTANT_ID);
+            response = await axios.post(`${ASSISTANTS_API_URL}/${ASSISTANT_ID}/threads`, {
                 messages: [{ role: 'user', content: userMessage }]
             }, {
                 headers: {
@@ -44,9 +44,9 @@ exports.handler = async (event) => {
                 }
             });
         } else {
-            // Continue with an existing session
-            console.log('Continuing session:', sessionId);
-            sessionResponse = await axios.post(`${ASSISTANTS_API_URL}/asst_MzkZbILBkb0osJvbcnmuUtUF/sessions/${sessionId}/messages`, {
+            // Continue with an existing thread
+            console.log('Continuing thread:', threadId);
+            response = await axios.post(`${ASSISTANTS_API_URL}/${ASSISTANT_ID}/threads/${threadId}/messages`, {
                 role: 'user',
                 content: userMessage
             }, {
@@ -57,17 +57,18 @@ exports.handler = async (event) => {
             });
         }
 
-        const responseData = sessionResponse.data;
-        const gptResponse = responseData.message.content;
+        const responseData = response.data;
+        const gptResponse = responseData.messages[responseData.messages.length - 1].content;
+        const newThreadId = responseData.id;
 
-        console.log('Session ID:', responseData.session_id);
+        console.log('Thread ID:', newThreadId);
         console.log('Response:', gptResponse);
 
         return {
             statusCode: 200,
             body: JSON.stringify({
                 output: gptResponse,
-                sessionId: responseData.session_id // Return sessionId for the ongoing conversation
+                threadId: newThreadId // Return threadId for the ongoing conversation
             })
         };
     } catch (error) {
